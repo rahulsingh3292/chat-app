@@ -1,0 +1,54 @@
+
+{% extends 'chat/base.html' %}
+{% block title%}Account Activation{% endblock title%}
+{% block extra_css %}
+<style type="text/css" media="all">
+ .text{
+  font-family: 'Lora', serif;
+  margin-top:50px;
+  }
+</style>
+{% endblock extra_css %}
+{% block header%}
+{% endblock header%}
+{% block content%}
+<div class="text-center container  text"  style="margin-top:30px;">
+<div class="card">
+  <div class="card-body">
+    <blockquote class="blockquote mb-0">
+      <p id="text">Click To Activate Button For activate your account.. </p>
+      <footer class="blockquote-footer"><button class="btn btn-warning btn-sm mt-3" id="activate">Activate</button></footer>
+    </blockquote>
+  </div>
+</div>
+</div>
+
+{% endblock content%}
+
+{% block extra_js %}
+<script>
+const params = new URLSearchParams(window.location.search)
+ let email = atob(params.get("email"))
+
+  $("#activate").click(function(){
+    $(this).hide();
+    $.ajax({
+      url : "/accounts/verify-account/",
+      method : "POST",
+      data : {"email":email},
+      success : function(resp){
+        
+        if(resp["activated"]){
+          
+          $("#text").text("Account Is Activated.. Redirecting to login page.").addClass("text-success");
+          setTimeout(function(){
+            window.location.replace("/accounts/login/")
+          },3000)
+        } else{
+          window.location.replace("/accounts/login/");
+        }
+      }
+    })
+  })
+</script>
+{% endblock extra_js %}

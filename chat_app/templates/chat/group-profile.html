@@ -1,0 +1,240 @@
+{% extends 'chat/base.html' %}
+{% load static%}
+{% block title%} {{group.name}} {% endblock title%}
+{% block header%}
+{% endblock header%}
+{% block content %}
+<div class="main-wrapper">
+  <div class="account-profile">
+    
+    
+    <div class="container">
+      <div class="top-profile">
+        <div class="profile">
+          <a onclick="history.back();" class="back-btn back"><img src="/static/assets/img/icons/arrow.png" alt=""></a>
+        </div>
+      </div>
+      
+       <div  class="profile-picture">
+        {% if group.logo %}
+        <img id="profile-pic" src="{{group.logo.url}}" alt="">
+        
+        {% else%}
+           <img id="profile-pic" src="/static/assets/img/status/status-1.jpg" alt="">
+        {% endif%}
+        
+      </div>
+      <div class="name-details">
+        <h4>{{group.name}}</h4>
+    
+    
+    
+      </div>
+            
+        
+  
+      <div class="profile-cam">
+        <a ><img  src="/static/assets/img/icons/camera.png" alt=""></a>
+        <input type="file" id="profile_pic" class="custom-file-upload" />
+      </div>
+    </div>
+  </div>
+
+  <div class="media-section">
+    <div class="container">
+      
+
+      
+      <div class="media-col mt-3">
+        <div class="form-group">
+          <label for="name">Group Name</label>
+          <input id="group_name" disabled class="form-control bg-dark font-weight-bold text-center  text-white " value="{{group.name}}">
+        </div>
+        
+        <div class="form-group mt-2">
+         <label for="Description">Description</label>
+          <textarea disabled id="group_bio" rows="3" cols="32" class="form-control text-white bg-dark font-weight-bold">{{group.description}}</textarea>
+        
+        </div>
+            {% if request.user == group.admin %}
+       <div class="container mt-2">
+         <button data-toggle="modal" data-target="#editModal" class="btn btn-primary btn-block">Edit</button>
+       </div>
+      {% endif %}
+        </div>
+      
+      
+      <div class="media-col">
+  
+        <div class="title-col">
+          <h6>Participants ({{members|length}})</h6>
+        </div>
+        <ul>
+     <li>
+<div class="top-profile status-top-profile without-circle">
+<div class="profile">
+<div class="avatar">
+  {% if group.admin.photo %}
+<img src="{{group.admin.photo.url}}" alt="">
+{% else %}
+<img src="/static/assets/img/avatar-1.jpg" alt="">
+{% endif%}
+</div>
+<div class="profile-details">
+  <a href="/user-profile/{{group.admin.username}}/">
+<span class="main-title">{{group.admin.first_name}} {{group.admin.last_name}}</span> </a>
+</div>
+</div>
+<div class="member-details">
+<span class="admin-group">Group admin</span>
+</div>
+</div>
+</li>
+          {% for member in  members %}
+          <li>
+            <a href="/user-profile/{{member.username}}/">
+            <div class="top-profile status-top-profile without-circle">
+              <div class="profile">
+                <div class="avatar">
+                 
+                 {% if member.photo %}
+                  <img src="{{member.photo.url}}" alt="">
+                  {% else %}
+                  
+                  <img src="/static/assets/img/avatar-1.jpg" alt="">
+                  {% endif%}
+                  
+                </div>
+                <div class="profile-details">
+                  <span class="main-title">{{member.first_name}} {{member.last_name}}</span>
+                </div>
+              </div>
+            </div>
+            </a>
+          </li>
+     {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editModalLabel">Edit Group Details</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            
+            <div class="modal-body">
+             
+             
+  <div class="media-section">
+    <div class="container">
+      <div class="drop-down-col">
+         
+         
+         
+      <div class="mt-2" id="field_error">
+        
+      </div>
+
+        <div class="form-group mt-2">
+          <label for="name">Group Name</label>
+          <input id="editgroupname" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{group.name}}" placeholder="Group Name Mandatory">
+        </div>
+    
+        
+            <div class="form-group mt-2">
+          <label for="name">Group Description</label>
+          <textarea id="editgroupbio" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold"  placeholder="Group Description (optional)">  {{group.description}}</textarea>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+            </div>
+            
+            
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button  class="btn btn-primary" id="save_edit">Save Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+</div>
+
+
+{% endblock content %}
+
+
+{% block extra_js%}
+<script>
+      $(document).on("change","#profile_pic",function(){
+        
+       var pic = this.files[0] 
+       var  formData = new  FormData();
+       formData.append("file",pic)
+       formData.append("g_id","{{group.id}}")
+       $.ajax({
+          url : "/upload-group-photo/",
+          method : "POST",
+          data : formData,
+          processData: false,
+          contentType: false,
+      
+          success : function(data){
+            console.log(data)
+            $("#profile-pic").attr({"src":data["status"]})
+          }
+        })
+       
+      })
+      
+      
+      $("#save_edit").click(function(){
+        var group_name = $("#editgroupname").val();
+  
+        var bio = $("#editgroupbio").val();
+        
+        if(group_name == "") {
+       $("#field_error").html('    <div class="alert alert-danger">Group Name Required</div>')
+          return
+        }
+
+      
+      let Data = {"group_name":group_name,"bio":bio}
+      
+      
+      $.ajax({
+        url : "/update_group/{{group.id}}/",
+        method : "POST",
+        data : Data,
+        success : function(resp){
+          if (resp["status"]){
+              $("#field_error").html('<div class="alert alert-success">Group details are updated</div>')
+            setTimeout(function(){
+         $("#field_error").html("");
+         $("#editModal").modal("toggle");
+       
+         $("#group_name").val(group_name);
+         $("#group_bio").val(bio);
+            },3000)
+
+          } 
+        }
+          
+        })
+      
+      })
+      
+      
+</script>
+{% endblock extra_js%}

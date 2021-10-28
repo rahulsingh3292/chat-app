@@ -1,0 +1,44 @@
+{% extends 'chat/base.html' %}
+{% load static%}
+{% block title%}Chat Home {% endblock title%}
+
+{% block content %}
+  {% block add%}
+      <div class="add-new-btn">
+        <a href="/contacts/"><i class="fas fa-plus"></i></a>
+      </div>
+   {% endblock add%} 
+    <div class="chat-list-col">
+      <div class="container">
+        <div class="person-list">
+          <ul>
+           
+       {% for chat in chats%}
+            <li class="person-list-item col-12">
+              <a href="/chat/{{chat.user_2.username}}/">
+                <div class="avatar">
+                  {% if chat.user_2.photo %}
+                  <img src="{{chat.user_2.photo.url}}" width="48" alt="">
+                  {% else%}
+                    <img src="/static/assets/img/avatar-1.jpg" width="48" alt="">
+                  {% endif %}
+                </div>
+                <div class="no-read">
+                  <div>
+                    <h5>{{chat.user_2.first_name}} {{chat.user_2.last_name}}</h5>
+                    <p>
+                     {{chat.recent_msg}}
+                    </p>
+                  </div>
+              
+                </div>
+              </a>
+            </li>
+            {% endfor%}
+            
+            
+          </ul>
+        </div>
+      </div>
+    </div>
+{% endblock content %}

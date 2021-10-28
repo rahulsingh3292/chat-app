@@ -1,0 +1,105 @@
+{% extends 'chat/base.html' %}
+{% load static%}
+{% block title%} Group Add{% endblock title%}
+{% block header%}
+{% endblock header%}
+{% block content %}
+
+
+<div class="main-wrapper chat-bg">
+
+  <div class="header header-small">
+    <div class="top-profile">
+      <div class="profile pt-10">
+        <a onclick="history.back();" class="back-btn"><img src="/static/assets/img/icons/arrow.png" alt=""></a>
+        New Group
+      </div>
+      <div class="search pt-10">
+        <a  class="search-icon"><img src="/static/assets/img/icons/search.png" alt=""></a>
+      </div>
+      <div class="search_chat has-search">
+        <span class="fas fa-search form-control-feedback"></span>
+        <span class="close-search"><i class="far fa-times-circle"></i></span>
+        <input class="form-control chat_input" id="search-contact" type="text" placeholder="">
+      </div>
+    </div>
+  </div>
+
+<form method="post" accept-charset="utf-8"> {% csrf_token%}
+  <div class="container">
+    <div class="form-group">
+      <label for="name label">Group Name</label>
+      <input type="text" id="group_name" autocomplete="off" name="name" class="form-control bg-dark text-white font-weight-bold text-center" placeholder="Enter group Name" value="" />
+    </div>
+    <div class="form-group">
+      <label for="desclabel">Group  Description</label>
+      <textarea cols="40" rows="2" id="group_desc"  name="description" class="form-control bg-dark text-white font-weight-bold text-center" placeholder="Group Description"></textarea>
+    </div>
+  </div>
+
+  <div class="chat-list-col contact-list">
+    <div class="container">
+      <div class="person-list">
+        <ul>
+          {% for users in contacts %}
+          <li class="person-list-item col-12">
+            <div>
+              <div class="avatar">
+               {% if users.photo %}
+                <img src="{{users.photo.url}}" width="48" alt="">
+                {% else%}
+                  <img src="/static/assets/img/avatar-1.jpg" width="48" alt="">
+                {% endif%}
+                
+                
+              </div>
+              <div class="person-list-body align-items-center">
+                <div>
+                  <h5>{{users.first_name}} {{users.last_name}}</h5>
+                  <p class="no-read">
+                    {{users.bio}}
+                  </p>
+                </div>
+                <div class="last-chat-time">
+                  <label class="checkbox-col">
+                    <input type="checkbox" name="member" value="{{users.id}}">
+                    <span class="checkmark"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </li>
+     {% endfor %}
+      
+        </ul>
+      </div>
+    </div>
+    <div class="bottom-submit">
+      <div class="left">
+      </div>
+      <div class="right">
+        <button id="save_group" type="submit"  class="submit-btn"><img src="/static/assets/img/icons/arrow.png"></button>
+      </div>
+    </div>
+  </div>
+  </form>
+</div>
+
+
+
+{% endblock content%}
+
+{% block extra_js%}
+<script>
+ $("#save_group").hide();
+
+$("#group_name").keyup(function(){
+  if(this.value == ""){
+    $('#save_group').hide();
+  }else{
+    $("#save_group").show();
+  }
+})
+</script>
+
+{% endblock extra_js%}

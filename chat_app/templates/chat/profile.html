@@ -1,0 +1,220 @@
+{% extends 'chat/base.html' %}
+{% load static%}
+{% block title%} Profile {% endblock title%}
+
+
+{% block css%}
+
+{% endblock css%}
+
+
+{% block header%}
+{% endblock header%}
+{% block content %}
+
+<div class="main-wrapper">
+<div class="account-profile">
+<div class="container">
+<div class="top-profile">
+<div class="profile">
+  
+<a onclick="history.back();" class="back-btn"><img src="/static/assets/img/icons/arrow.png" alt=""></a>
+</div>
+</div>
+<div class="profile-picture">
+  {% if user.photo %}
+  
+<img  id="profile-pic" src="{{user.photo.url}}" alt="error to load image">
+
+{% else%}
+<img  id="profile-pic" src="/static/assets/img/avatar-3.jpg" alt="">
+{% endif%}
+</div>
+<div class="name-details">
+<h4>{{user.first_name}} {{user.last_name}}</h4>
+
+</div>
+<div class="profile-cam">
+<a><img src="/static/assets/img/icons/camera.png"  alt=""></a>
+<input type="file" id="profile_pic"  class="custom-file-upload" />
+</div>
+</div>
+</div>
+
+
+  <div class="media-section">
+    <div class="container">
+      <div class="drop-down-col">
+
+        <div class="form-group mt-2">
+          <label for="name">First Name</label>
+          <input disabled id="first_name" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{user.first_name}}">
+        </div>
+        
+        <div 
+        class="form-group mt-2">
+          <label for="name">Last Name</label>
+          <input disabled id="last_name" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{user.last_name}}">
+        </div>
+        
+        <div class="form-group mt-2">
+          <label for="name">username</label>
+          <input disabled id="username" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{user.username}}">
+        </div>
+        
+        <div class="form-group mt-2">
+          <label for="name">Bio</label>
+          <textarea disabled rows="2" cols="15" disabled id="bio" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" >{{user.bio}}</textarea>
+        </div>
+        
+        
+          <button class="btn btn-outline-primary btn-block" data-toggle="modal" data-target="#editModal" type="button">Edit</button>
+       
+        
+      </div>
+    </div>
+  </div>
+
+
+
+<!-- Edit Profilr modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editModalLabel">Edit profile Details</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            
+            <div class="modal-body">
+             
+             
+  <div class="media-section">
+    <div class="container">
+      <div class="drop-down-col">
+         
+         
+         
+      <div class="mt-2" id="field_error">
+        
+      </div>
+
+        <div class="form-group mt-2">
+          <label for="name">First Name</label>
+          <input id="editfirst_name" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{user.first_name}}" placeholder="First Name (mandatory)">
+        </div>
+         <div class="form-group mt-2">
+          <label for="name">Last Name</label>
+          <input id="editlast_name" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{user.last_name}}" placeholder="Last Name (Optional)">
+        </div>
+        
+        <div class="form-group mt-2">
+          <label for="name">username</label>
+          <input id="editusername" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{user.username}}">
+        </div>
+        
+        <div class="form-group mt-2">
+          <label for="name">Bio</label>
+          <textarea rows="2" cols="15"  id="editbio" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" >{{user.bio}}</textarea>
+        </div>
+        
+       
+        
+      </div>
+    </div>
+  </div>
+  
+            </div>
+            
+            
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button  class="btn btn-primary" id="save_edit">Save Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+<!-- End -->
+
+
+</div>
+
+{% endblock content%}
+
+{% block extra_js%} 
+  <script>
+      $(document).on("change","#profile_pic",function(){
+        
+        var pic = this.files[0] 
+       var  formData = new  FormData();
+       formData.append("file",pic)
+      
+       $.ajax({
+          url : "/upload/",
+          method : "POST",
+          data : formData,
+          processData: false,
+          contentType: false,
+      
+          success : function(data){
+            console.log(data)
+            $("#profile-pic").attr({"src":data["status"]})
+          }
+        })
+
+       
+      })
+      
+
+      $("#save_edit").click(function(){
+        var first_name = $("#editfirst_name").val();
+        var last_name = $("#editlast_name").val();
+        var username = $("#editusername").val();
+        var bio = $("#editbio").val();
+        
+        if(first_name == "") {
+       $("#field_error").html('    <div class="alert alert-danger">Required (First Name) </div>')
+          return
+        }
+        
+      if(username == ""){
+           $("#field_error").html('    <div class="alert alert-danger">username field Required</div>')
+        return 
+      }
+      
+      let Data = {"first_name":first_name,"last_name":last_name,"username":username,"bio":bio}
+      
+      
+      $.ajax({
+        url : "/edit-profile/",
+        method : "POST",
+        data : Data,
+        success : function(resp){
+          if (resp["status"]){
+              $("#field_error").html('<div class="alert alert-success">Profile details are updated</div>')
+            setTimeout(function(){
+         $("#field_error").html("");
+         $("#editModal").modal("toggle");
+       
+         $("#first_name").val(first_name);
+         $("#last_name").val(last_name);
+         $("#bio").val(bio);
+         $("#username").val(username);
+            
+              
+            },3000)
+
+          } else{
+            
+     $("#field_error").html('<div class="alert alert-danger">This username already taken </div>') 
+            
+          }
+        }
+          
+        })
+      
+      })
+    </script>
+{% endblock extra_js %}

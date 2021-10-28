@@ -1,0 +1,107 @@
+{% extends 'chat/base.html' %}
+{% load static%}
+{% block title%} Profile {% endblock title%}
+
+
+{% block css%}
+
+{% endblock css%}
+
+
+{% block header%}
+{% endblock header%}
+{% block content %}
+
+<div class="main-wrapper">
+<div class="account-profile">
+<div class="container">
+<div class="top-profile">
+<div class="profile">
+  
+<a onclick="history.back();" class="back-btn"><img src="/static/assets/img/icons/arrow.png" alt=""></a>
+</div>
+</div>
+<div class="profile-picture">
+  {% if user.photo %}
+  
+<img  id="profile-pic" src="{{user.photo.url}}" alt="error to load image">
+{% else%}
+<img  id="profile-pic" src="/static/assets/img/avatar-3.jpg" alt="">
+{% endif%}
+</div>
+<div class="name-details mt-3">
+<h4>{{user.first_name}} {{user.last_name}}</h4>
+<span class="seen-details">Last seen {{user.last_seen}}</span>
+</div>
+
+<div class="row mt-2">
+  <div class="col-5">
+  <a href="/chat/{{user.username}}/" class="btn btn-success">Message</a>
+  </div>
+  {% if not is_in_contact%}
+  {% if user != request.user %}
+    <div class="col-5 ml-1" id="contact">
+  <a id="add-contact" class="btn btn-success"
+  >Add-To-Contact</a>
+  {% endif%}
+  </div>
+  {% endif%}
+</div>
+
+</div>
+</div>
+
+
+  <div class="media-section">
+    <div class="container">
+      <div class="drop-down-col">
+
+        <div class="form-group mt-2">
+          <label for="name">First Name</label>
+          <input disabled id="first_name" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{user.first_name}}">
+        </div>
+        
+        <div 
+        class="form-group mt-2">
+          <label for="name">Last Name</label>
+          <input disabled id="last_name" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{user.last_name}}">
+        </div>
+        
+        <div class="form-group mt-2">
+          <label for="name">username</label>
+          <input disabled id="username" type="text" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" value="{{user.username}}">
+        </div>
+        
+        <div class="form-group mt-2">
+          <label for="name">Bio</label>
+          <textarea disabled rows="2" cols="15"  id="bio" class="form-control bg-dark text-align pl-3 text-white font-weight-bold" >{{user.bio}}</textarea>
+        </div>
+        
+
+        
+      </div>
+    </div>
+  </div>
+
+
+
+
+</div>
+
+{% endblock content%}
+{% block extra_js%}
+<script>
+  $("#add-contact").click(function(){
+    $.ajax({
+      url : "/contacts/",
+      method : "POST",
+      data : {"user_id":"{{user.id}}"},
+      success : function(resp){
+        if (resp["status"] == 200){
+          $("#contact").html("")
+        }
+      }
+    })
+  })
+</script>
+{% endblock extra_js%}

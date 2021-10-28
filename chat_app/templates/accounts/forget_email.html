@@ -1,0 +1,154 @@
+
+{% extends 'chat/base.html' %}
+
+{% block title %}Reset password Email{% endblock title%}
+{% block css%}
+<style type="text/css" media="all">
+  body {
+    margin: 0;
+    padding-top: 40px;
+    color: #2e323c;
+    background: #f5f6fa;
+    position: relative;
+    height: 100%;
+}
+.account-settings .user-profile {
+    margin: 0 0 1rem 0;
+    padding-bottom: 1rem;
+    text-align: center;
+}
+.account-settings .user-profile .user-avatar {
+    margin: 0 0 1rem 0;
+}
+.account-settings .user-profile .user-avatar img {
+    width: 90px;
+    height: 90px;
+    -webkit-border-radius: 100px;
+    -moz-border-radius: 100px;
+    border-radius: 100px;
+}
+.account-settings .user-profile h5.user-name {
+    margin: 0 0 0.5rem 0;
+}
+.account-settings .user-profile h6.user-email {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #9fa8b9;
+}
+.account-settings .about {
+    margin: 2rem 0 0 0;
+    text-align: center;
+}
+.account-settings .about h5 {
+    margin: 0 0 15px 0;
+    color: #007ae1;
+}
+.account-settings .about p {
+    font-size: 0.825rem;
+}
+.form-control {
+    border: 1px solid #cfd1d8;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    font-size: .825rem;
+    background: #ffffff;
+    color: #2e323c;
+}
+
+.card {
+    background: #ffffff;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 0;
+    margin-bottom: 1rem;
+}
+
+</style>
+{% endblock css%}
+
+
+{% block header%}
+{% endblock header%}
+{% block content %}
+
+ <div class="container mt-3">
+<div class="row gutters">
+
+<div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+<div class="card h-100">
+	<div class="card-body">
+	  
+	    <div class="container mb-3">
+	      <h6 class="text-center" id="msg"></h6>
+	    </div>
+	  <form method="post" id="Form"> {% csrf_token  %}
+		<div class="row gutters">
+		  
+		   
+			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+				<h6 class="mb-2 text-primary">Forget password Email</h6>
+			</div>
+			
+			<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+				<div class="form-group">
+					<label for="new password">Email</label>
+					<input type="email" class="form-control"  id="email" placeholder="Enter Your Email">
+				</div>
+			</div>
+
+		</div>
+
+		<div class="row gutters">
+			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+				<div class="text-right">
+		
+					<button type="button" id="send" class="btn btn-primary">Send</button>
+				</div>
+				
+			</div>
+		</div>
+		
+		</form>
+
+	</div>
+</div>
+</div>
+</div>
+</div>
+      {% endblock content%}
+
+{% block extra_js %}
+ <script>
+ $("#send").click(function(){
+   let email = $("#email").val();
+   if(email == ""){
+     $("#msg").text("Enter an Email Address");
+     return 
+     
+   }
+   $("#msg").text("Please wait...")
+     $.ajax({
+     url : "/accounts/forget-email/",
+     method : "POST",
+     data : {"csrfmiddlewaretoken":"{{csrf_token}}","email":email},
+     success : function (resp){
+         if(resp["status"]){
+            $("#msg").addClass("text-success").text("Foregt link sent on your inbox. check the inbox for reset your password");
+        $("#Form").hide();
+        setTimeout(function(){
+          window.location.replace("/accounts/login/")
+        },8000);
+         } else{
+           $("#msg").text("Enter A valid email");
+         }
+      
+     }
+   })
+ })
+ 
+ </script>
+{% endblock extra_js %}
+

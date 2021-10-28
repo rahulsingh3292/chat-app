@@ -1,0 +1,624 @@
+
+{% extends 'chat/base.html' %}
+{% load static%}
+{% block title%}Group Chat{% endblock title%}
+
+{% block header%}
+
+{% endblock header%}
+{% block content %}
+
+<div class="header header-small">
+<div class="top-profile">
+<div class="profile">
+<a onclick="history.back();" class="back-btn"><img src="/static/assets/img/icons/arrow.png" alt=""></a>
+<a href="/group_profile/{{group.id}}/" class="profile">
+  {% if  group.logo %}
+<span class="avatar"><img src="{{group.logo.url}}" alt=""></span>
+
+{% else%} 
+<span class="avatar"><img src="/static/assets/img/status/status-1.jpg" alt=""></span>
+{% endif%}
+{{group.name}}
+</a>
+</div>
+
+        <div class="search">
+       
+          <a  data-toggle="dropdown" aria-expanded="true"><img src="/static/assets/img/icons/hamburger-icon.svg"></a>
+          
+          <div class="dropdown-menu dropdown-menu-right header_drop_icon">
+            {% if request.user == group.admin %}
+            <a href="/add-group/" class="dropdown-item">New Group</a>
+            
+            <a href="/delete_group/{{group.id}}/" class="dropdown-item">Delete group</a>
+        
+            
+        {% endif%}
+            <a href="/group_profile/{{group.id}}/" class="dropdown-item">Profile</a>
+            <a href="/exit_group/{{group.id}}/" class="dropdown-item">Exit group</a>
+          </div>
+          
+        </div>
+        
+</div>
+</div>
+
+<div class="main-wrapper messages-content chat-bg">
+
+  <div class="messages">
+    {% for msg in group_msgs %}
+    {% if msg.user.username != request.user.username %}
+    <div class="message message-received message-first message-last message-tail" id="main_msg{{msg.id}}">
+      <div class="message-content">
+      <a href="/user-profile/{{msg.user.username}}/" class="text-pink">
+       <i>{{msg.user.first_name}} {{msg.user.last_name}}</i>
+        </a>
+        <div class="message-bubble">
+             {% if msg.reply %}
+         <div class="message-text mb-2">
+           Replied To <i class="fas fa-arrow-right"></i> <i>{{msg.reply.message}}</i>
+        <i class="fas fa-arrow-left"></i>
+         </div>
+         {% endif %}
+          <div class="message-text" id="msg_{{msg.id}}">
+            {{msg.message}}
+          </div>
+        </div>
+        <!-- Start -->
+        <div class="message-footer">
+
+          <div class="container">
+            {{msg.timestamp}}
+            <i class="fa fa-reply fa-lg msg_reply" data-toggle="modal" data-target="#replyModal{{msg.id}}" style="margin-left:30px;"></i>
+
+            <i class="fa fa-trash fa-lg msg_delete" msgId="{{msg.id}}" style="margin-left:30px;"></i>
+          </div>
+        </div>
+
+
+        <!-- Start -->
+        <div class="modal fade" id="replyModal{{msg.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Reply </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" id="reply_msg_id" value="{{msg.id}}" />
+                <div class="container">
+                  <textarea id="reply_input" rows="3" cols="40" class="form-control form-label bg-dark text-white ml-2" placeholder="Text Your Reply"></textarea>
+                </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary cancel_reply" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary reply_send">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End -->
+
+      </div>
+    </div>
+  
+     {% else%}
+       <div class="message message-sent message-first" id="main_msg{{msg.id}}">
+      <div class="message-content">
+     
+        <div class="message-bubble">
+  
+     {% if msg.reply %}
+         <div class="message-text mb-2">
+           Replied To <i class="fas fa-arrow-right"></i> <i>{{msg.reply.message}}</i>
+        <i class="fas fa-arrow-left"></i>
+         </div>
+         {% endif %}
+          <div class="message-text" id="msg_{{msg.id}}">
+            {{msg.message}}
+          </div>
+          
+        </div>
+
+        <div class="message-footer">
+          <div>
+
+           
+            {{msg.timestamp}}
+            <div class="container mt-2">
+              <i class="fa fa-reply msg_reply fa-lg" data-toggle="modal" data-target="#replyModal{{msg.id}}" style="margin-right:30px;"></i>
+              <i class="fa fa-pen msg_edit fa-lg" data-toggle="modal" data-target="#editModal{{msg.id}}"></i>
+
+              <i class="fa fa-trash fa-lg msg_delete" msgId="{{msg.id}}" style="margin-left:30px;"></i>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- Edit Modal -->
+      <div class="modal fade" id="editModal{{msg.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Edit Message</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="edit_msg_id" value="{{msg.id}}" />
+              <div class="container">
+                <textarea rows="3" id="edit_input" cols="40" class="form-control bg-dark text-white" style="margin:left:20px;">{{msg.message}}</textarea>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary cancel_edit" data-dismiss="modal">Cancel</button>
+              <button class="btn btn-primary save_edit">Save Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Edit -->
+
+
+      <!-- Modal Reply-->
+      <div class="modal fade" id="replyModal{{msg.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Reply </h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="reply_msg_id" value="{{msg.id}}" />
+              <div class="container">
+                <textarea id="reply_input" rows="3" cols="40" class="form-control form-label bg-dark text-white ml-2" placeholder="Text your Reply"></textarea>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary cancel_reply" data-dismiss="modal">Close</button>
+              <button class="btn btn-primary  reply_send">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End reply-->
+
+
+
+
+
+
+      <!-- End Edit Modal  -->
+    </div>
+   {% endif%}
+    
+    {% endfor%}
+
+   
+  
+  <!-- Dynamic msg -->
+  <!-- Her Dynamic Messages -->
+  <div id="dynamic_msgs">
+
+  </div>
+
+  <div class="mt-4" style="margin-top:25px;">
+    <div class="toolbar messagebar">
+      <div class="toolbar-inner">
+
+        <textarea id="chat_msg" placeholder="Type your message" class="form-control"></textarea>
+
+        <div class="media-buttons">
+          <ul>
+            <li>
+
+              <li id="send_btn">
+                <a type="button" id="send_msg"><i class="fa fa-paper-plane fa-lg"></i></a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+</div>
+{% endblock content %}
+
+{% block extra_js%}
+
+  <script>
+    var socket = new WebSocket("ws://localhost:8000"+window.location.pathname)
+
+    socket.onmessage = function(event) {
+
+      let json = JSON.parse(event["data"])
+      let data = JSON.parse(json["text"]);
+
+
+      if (data["type"] == "delete") {
+        $(document.getElementById("main_msg"+data["msgId"])).attr({
+          "style": "display:none;"
+        });
+        return
+      }
+
+      if (data["type"] == "message") {
+        if (data["sent_by"] == "{{request.user.username}}") {
+          
+          $("#dynamic_msgs").append(`<div class="message message-sent message-first" id="main_msg${data['msg_id']}">
+            <div class="message-content">
+            <div class="message-bubble">
+            <div class="message-text" id="msg_${data['msg_id']}">${data["msg"]}</div>
+            </div>
+
+            <div class="message-footer">
+            <div>
+
+           
+            <div class="container mt-2">
+            <i class="fa fa-reply msg_reply fa-lg"  data-toggle="modal" data-target="#replyModal${data['msg_id']}" style="margin-right:30px;"></i>
+            <i class="fa fa-pen msg_edit fa-lg"  data-toggle="modal" data-target="#editModal${data["msg_id"]}"></i>
+
+            <i class="fa fa-trash fa-lg msg_delete" msgId="${data["msg_id"]}" style="margin-left:30px;"></i>
+            </div>
+
+            </div>
+            </div>
+            </div>
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal${data["msg_id"]}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Edit Message</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span  aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <input type="hidden" id="edit_msg_id" value="${data["msg_id"]}"/>
+            <div class="container">
+            <textarea rows="3" id="edit_input" cols="40" class="form-control bg-dark text-white" style="margin:left:20px;">${data["msg"]}</textarea>
+            </div>
+
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary cancel_edit" data-dismiss="modal" >Cancel</button>
+            <button  class="btn btn-primary save_edit">Save Edit</button>
+            </div>
+            </div>
+            </div>
+            </div>
+            <!-- Edit -->
+
+
+            <!-- Modal Reply-->
+            <div class="modal fade" id="replyModal${data["msg_id"]}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Reply </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span  aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <input type="hidden" id="reply_msg_id" value="${data["msg_id"]}" />
+            <div class="container">
+            <textarea id="reply_input" rows="3" cols="40" class="form-control form-label bg-dark text-white ml-2" placeholder="Text your Reply"></textarea>
+            </div>
+
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary cancel_reply" data-dismiss="modal" >Close</button>
+            <button class="btn btn-primary reply_send">Send</button>
+            </div>
+            </div>
+            </div>
+            </div>
+            <!-- End reply-->
+
+
+            <!-- End Edit Modal  -->
+            </div>`);
+        } else {
+          $("#dynamic_msgs").append(`<div class="message message-received message-first message-last message-tail" id="main_msg${data["msg_id"]}">
+            <div class="message-content">
+                <a href="/user-profile/${data["sent_by"]}/" class="text-pink">
+       <i>${data["name"]}</i>
+        </a>
+            
+            <div class="message-bubble">
+            <div class="message-text" id="msg_${data["msg_id"]}">${data["msg"]}</div>
+            </div>
+            <!-- Start -->
+            <div class="message-footer">
+
+            <div class="container">
+            
+            <i class="fa fa-reply fa-lg msg_reply" data-toggle="modal" data-target="#replyModal${data["msg_id"]}" style="margin-left:30px;"></i>
+
+            <i class="fa fa-trash fa-lg msg_delete" msgId="${data["msg_id"]}" style="margin-left:30px;"></i>
+            </div>
+            </div>
+
+            <!-- Start -->
+            <div class="modal fade" id="replyModal${data["msg_id"]}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Reply </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span  aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <input type="hidden" id="reply_msg_id" value="${data["msg_id"]}"/>
+            <div class="container">
+            <textarea id="reply_input" rows="3" cols="40" class="form-control form-label bg-dark text-white ml-2" placeholder="Text Your Reply"></textarea>
+            </div>
+
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary cancel_reply" data-dismiss="modal" >Close</button>
+            <button class="btn btn-primary reply_send">Send</button>
+            </div>
+            </div>
+            </div>
+            </div>
+            <!-- End -->
+
+            </div>
+            </div>`);
+        }
+        return
+      }
+
+      if (data["type"] == "edit") {
+
+        let msg = $(document.getElementById("msg_"+data["msgId"])).text(data["msg"])
+
+        return
+      }
+      
+      if (data["type"] == "reply") {
+       
+        if (data["sent_by"] == "{{request.user.username}}") {
+          $("#dynamic_msgs").append(`<div class="message message-sent message-first" id="main_msg${data['msg_id']}">
+            <div class="message-content">
+      
+            
+            <div class="message-bubble">
+                  <!-- Start reply -->
+                     <div class="message-text mb-2">
+           Replied To <i class="fas fa-arrow-right"></i> <i>${data["reply_to"]}</i>
+        <i class="fas fa-arrow-left"></i>
+         </div>
+            <!-- End Reply-->
+            
+            <div class="message-text" id="msg_${data['msg_id']}">${data["msg"]}</div>
+            </div>
+
+            <div class="message-footer">
+            <div>
+
+           
+            
+            <div class="container mt-2">
+            <i class="fa fa-reply msg_reply fa-lg"  data-toggle="modal" data-target="#replyModal${data['msg_id']}" style="margin-right:30px;"></i>
+            <i class="fa fa-pen msg_edit fa-lg"  data-toggle="modal" data-target="#editModal${data["msg_id"]}"></i>
+
+            <i class="fa fa-trash fa-lg msg_delete" msgId="${data["msg_id"]}" style="margin-left:30px;"></i>
+            </div>
+
+            </div>
+            </div>
+            </div>
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal${data["msg_id"]}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Edit Message</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span  aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <input type="hidden" id="edit_msg_id" value="${data["msg_id"]}"/>
+            <div class="container">
+            <textarea rows="3" id="edit_input" cols="40" class="form-control bg-dark text-white" style="margin:left:20px;">${data["msg"]}</textarea>
+            </div>
+
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary cancel_edit" data-dismiss="modal" >Cancel</button>
+            <button  class="btn btn-primary save_edit">Save Edit</button>
+            </div>
+            </div>
+            </div>
+            </div>
+            <!-- Edit -->
+
+
+            <!-- Modal Reply-->
+            <div class="modal fade" id="replyModal${data["msg_id"]}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Reply </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span  aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <input type="hidden" id="reply_msg_id" value="${data["msg_id"]}" />
+            <div class="container">
+            <textarea id="reply_input" rows="3" cols="40" class="form-control form-label bg-dark text-white ml-2" placeholder="Text your Reply"></textarea>
+            </div>
+
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary cancel_reply" data-dismiss="modal" >Close</button>
+            <button class="btn btn-primary reply_send">Send</button>
+            </div>
+            </div>
+            </div>
+            </div>
+            <!-- End reply-->
+
+
+            <!-- End Edit Modal  -->
+            </div>`);
+        } else {
+          $("#dynamic_msgs").append(`<div class="message message-received message-first message-last message-tail" id="main_msg${data["msg_id"]}">
+            <div class="message-content">
+              <a href="/user-profile/${data["sent_by"]}/" class="text-pink">
+       <i>${data["name"]}</i>
+        </a>
+            <div class="message-bubble">
+                  <!-- Start reply -->
+                     <div class="message-text mb-2">
+           Replied To <i class="fas fa-arrow-right"></i> <i>${data["reply_to"]}</i>
+        <i class="fas fa-arrow-left"></i>
+         </div>
+            <!-- End Reply-->
+            
+            <div class="message-text" id="msg_${data["msg_id"]}">${data["msg"]}</div>
+            </div>
+            <!-- Start -->
+            <div class="message-footer">
+
+            <div class="container">
+            
+            <i class="fa fa-reply fa-lg msg_reply" data-toggle="modal" data-target="#replyModal${data["msg_id"]}" style="margin-left:30px;"></i>
+
+            <i class="fa fa-trash fa-lg msg_delete" msgId="${data["msg_id"]}" style="margin-left:30px;"></i>
+            </div>
+            </div>
+
+            <!-- Start -->
+            <div class="modal fade" id="replyModal${data["msg_id"]}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Reply </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span  aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <input type="hidden" id="reply_msg_id" value="${data["msg_id"]}"/>
+            <div class="container">
+            <textarea id="reply_input" rows="3" cols="40" class="form-control form-label bg-dark text-white ml-2" placeholder="Text Your Reply"></textarea>
+            </div>
+
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary cancel_reply" data-dismiss="modal" >Close</button>
+            <button class="btn btn-primary reply_send">Send</button>
+            </div>
+            </div>
+            </div>
+            </div>
+            <!-- End -->
+
+            </div>
+            </div>`);
+        }
+        return
+      }
+    
+}
+
+    $(document).on("click", ".save_edit", function() {
+      
+      let dom = $(this).parent().parent()
+      let msgId = dom.find($("input[id='edit_msg_id']")).val();
+      let msg = dom.find($("textarea[id='edit_input']"))
+
+      let data = JSON.stringify({
+        "type": "edit",
+        "msg": msg.val(),
+        "msgId": msgId
+      })
+      if (msg == "") {
+        $(document.getElementsByClassName("cancel_edit")).click();
+       
+        return
+      } else {
+        socket.send(data)
+        
+        $(document.getElementById("editModal"+msgId)).modal("toggle");
+      }
+
+    })
+
+
+    $(document).on('click', ".reply_send", function() {
+      let dom = $(this).parent().parent();
+      let msgId = dom.find($("input[id='reply_msg_id']")).val();
+      let msg = dom.find($("textarea[id='reply_input']"))
+      
+      let data = JSON.stringify({
+        "type":"reply",
+        "msgId":msgId,
+        "msg":msg.val()
+      })
+      if(msg == ""){
+        $(document.getElementsByClassName("cancel_reply")).click();
+        msg.val("");
+         return 
+      } else{
+        socket.send(data)
+        
+        $(document.getElementById("replyModal"+msgId)).modal("toggle");
+        msg.val("");
+      }
+    })
+    
+
+    $("#send_btn").hide();
+
+    $("#chat_msg").keyup(function() {
+      if (this.value == "") {
+        $("#send_btn").hide();
+        return
+      } else {
+        $("#send_btn").show();
+      }
+      return
+    })
+
+    $(document).on('click', "#send_msg", function() {
+
+      let msg = $("#chat_msg")
+      let data = JSON.stringify({
+        "msg": msg.val(),
+        "type": "message",
+        
+      })
+      socket.send(data);
+     msg.val("");
+    })
+
+    $(document).on("click", ".msg_delete", function() {
+     
+      let msgId = $(this).attr("msgId");
+      socket.send(JSON.stringify({
+        "type": "delete",
+        "msgId": msgId
+      }))
+    })
+  </script>
+{% endblock extra_js%}

@@ -1,0 +1,47 @@
+{% extends 'chat/base.html' %}
+{% load static%}
+{% block title%} GroupS{% endblock title%}
+{% block content %}
+<div class="main-wrapper chat-bg">
+   {% block add%}
+      <div class="add-new-btn">
+        <a href="/add-group/"><i class="fas fa-plus"></i></a>
+      </div>
+   {% endblock add%} 
+  
+  <div class="chat-list-col">
+    <div class="container">
+      <div class="person-list">
+        <ul>
+          
+          {% for group in groups%}
+          <li class="person-list-item col-12">
+            <a href="/group/{{group.id}}">
+              <div class="avatar">
+                {% if group.logo %}
+                <img src="{{group.logo.url}}" width="48" alt="">
+                {% else%}
+                <img src="/static/assets/img/status/status-1.jpg" width="48" alt="">
+                {% endif%}
+              </div>
+              <div class="list-body">
+                <div>
+                  <h5>{{group.name}}</h5>
+                  <p class="">
+                    {{group.recent_msg}}
+                   </p>
+                </div>
+            
+              </div>
+            </a>
+          </li>
+          {% endfor%}
+      
+     
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content%}

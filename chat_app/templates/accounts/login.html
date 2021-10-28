@@ -1,0 +1,137 @@
+{% extends 'accounts/auth_base.html' %}
+
+{% block title%} Login {% endblock title%}
+
+
+
+
+{% block content%}
+
+<div class="limiter">
+  <div class="container-login100">
+    <div class="wrap-login100">
+      <div class="login100-form-title" style="background-image: url(/static/auth/images/bg-01.jpg);">
+        <span class="login100-form-title-1">
+          Sign In
+        </span>
+      </div>
+
+
+      <div class="container mt-3">
+        <div id="statusMsgs" class="alert">
+
+        </div>
+      </div>
+
+      <form class="login100-form validate-form" id="loginForm">
+        <div class="wrap-input100 validate-input m-b-26">
+          <span class="label-input100">Email</span>
+          <input class="input100" type="text" id="email" autocomplete="off" placeholder="Enter Email">
+          <span class="focus-input100"></span>
+        </div>
+
+        <div class="wrap-input100 validate-input m-b-18">
+          <span class="label-input100">Password</span>
+          <input autocomplete="off" class="input100" type="password" id="password" placeholder="Enter password">
+          <span class="focus-input100"></span>
+        </div>
+
+        <input type="hidden" name="next" id="next" value="" />
+
+
+        <div class="container-login100-form-btn">
+          <button class="login100-form-btn" type="button" id="login">
+            Login
+          </button>
+        </div>
+
+
+      </form>
+      <div class="row">
+        <div class="col">
+
+          <div class="content login100-form">
+            <a class="text-danger" href="/accounts/forget-email/">Foregt password?</a>
+          </div>
+        </div>
+        <div class="col">
+
+          <div class="content login100-form">
+            <a class="text-primary" href="/accounts/signup/">Signup</a>
+          </div>
+        </div>
+
+
+      </div>
+
+
+    </div>
+
+  </div>
+</div>
+
+{% endblock content%}
+{% block extra_js%}
+<script>
+  const params = new URLSearchParams(window.location.search);
+  $("#next").val(params.get("next"));
+  $("#login").click(function () {
+    let email = $("#email").val();
+    let next = $("#next").val();
+    let password = $("#password").val();
+    let csrf = "{{csrf_token}}"
+
+    if (email == "") {
+      $("#statusMsgs").addClass("text-danger").text("Email is Required")
+      return
+    }
+
+    if (password == "") {
+      $("#statusMsgs").addClass("text-danger").text("Password is Required")
+      return
+    }
+
+    let loginData = {
+      "csrfmiddlewaretoken": csrf,
+      "password": password,
+      "email": email,
+      "next": next
+    }
+
+
+    $("#statusMsgs").removeClass("text-danger").addClass("text-info").text("Authenticating...")
+
+    $.ajax({
+      url: "/accounts/login/",
+      method: "POST",
+      data: loginData,
+      success: function(resp) {
+
+        if (resp["active"] == false) {
+          $("#statusMsgs").text("Account Not Activated. please check your inbox to activate account.")
+          return
+        }
+
+        if (resp["redirect_to"]) {
+          $("#statusMsgs").removeClass("text-info").addClass("text-success").text("Loggged in success");
+          window.location.replace(`${resp["redirect_to"]}`)
+          return
+        }
+        if (resp["status"]) {
+          $("#statusMsgs").addClass("text-success").text('Logged in success')
+          window.location.replace("/")
+
+
+        } else {
+          $("#statusMsgs").addClass("text-danger").text("Invalid Email or password Try Again.")
+        }
+
+
+      }
+    })
+  })
+</script>
+
+
+
+{% endblock extra_js%}

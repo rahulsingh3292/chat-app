@@ -1,0 +1,106 @@
+{% extends 'chat/base.html' %}
+{% load static%}
+{% block title%}Search Users{% endblock title%}
+{% block header%}
+{% endblock header%}
+
+{% block content %}
+<div class="main-wrapper chat-bg">
+
+  <div class="header header-small">
+    <div class="top-profile">
+      <div class="profile pt-10">
+        <a onclick="history.back();" class="back-btn"><img src="/static/assets/img/icons/arrow.png" alt=""></a>
+        Search Users
+      </div>
+      <div class="search pt-10">
+        <a  class="search-icon" ><img src="/static/assets/img/icons/search.png" alt=""></a>
+      </div>
+      <div class="search_chat has-search">
+        <span class="fas fa-search form-control-feedback"></span>
+        <span class="close-search"><i class="far fa-times-circle"></i></span>
+        <input class="form-control chat_input" id="search-contact" type="text" placeholder="Serch by username">
+      </div>
+    </div>
+  </div>
+
+<div id="result">
+  
+</div>
+ 
+
+{% endblock content%}
+
+{% block extra_js%}
+<script>
+  $("#search-contact").keyup(function(){
+    var username = $(this).val();
+    if (username == ""){
+      $("#result").html("")
+      return 
+    }
+    $.ajax({
+      url :"/search_users/",
+      method : "GET",
+      data : {"username":username},
+      success : function(resp){
+        users = JSON.parse(resp["data"])
+        
+        if(users.length == 0){
+          
+          return
+        }
+        var data = ""
+        for (i=0; i < users.length;i++){
+          
+            
+          
+          if (users[i] !== undefined && users[i] !== null){
+            var user = users[i]["fields"]
+            
+          data+=` <div class="chat-list-col contact-list">
+    <div class="container">
+      <div class="person-list">
+        <ul>
+          <li class="person-list-item col-12">
+            <a href="/user-profile/${user["username"]}/">
+              <div class="avatar">
+               
+               <img src="/static/assets/img/avatar-1.jpg" width="48" alt="">
+               
+              </div>
+              <div class="person-list-body">
+                <div>
+                  <h5>${user["first_name"]}  ${user["last_name"]}</h5>
+                  <p class="no-read">
+                    ${user["bio"]}
+                  </p>
+                </div>
+              </div>
+            </a>
+          </li>
+    
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>`
+
+          }
+            
+          else{
+            return
+          }
+         
+         
+        }
+        if (data){
+        $("#result").html(data)
+        } else{
+          $("#result").html("")
+        }
+      }
+    })
+  })
+</script>
+{% endblock extra_js%}

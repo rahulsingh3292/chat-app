@@ -1,0 +1,59 @@
+{% extends 'chat/base.html' %}
+{% load static%}
+{% block title%}Contacts {% endblock title%}
+{% block header%}
+{% endblock header%}
+
+{% block content %}
+<div class="main-wrapper chat-bg">
+
+  <div class="header header-small">
+    <div class="top-profile">
+      <div class="profile pt-10">
+        <a onclick="history.back();" class="back-btn"><img src="/static/assets/img/icons/arrow.png" alt=""></a>
+        Contacts
+      </div>
+      <div class="search pt-10">
+        <a  class="search-icon"><img src="/static/assets/img/icons/search.png" alt=""></a>
+      </div>
+      <div class="search_chat has-search">
+        <span class="fas fa-search form-control-feedback"></span>
+        <span class="close-search"><i class="far fa-times-circle"></i></span>
+        <input class="form-control chat_input" id="search-contact" type="text" placeholder="">
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-list-col contact-list">
+    <div class="container">
+      <div class="person-list">
+        <ul>
+          {% for user in contacts%}
+          <li class="person-list-item col-12">
+            <a href="/chat/{{user.username}}/">
+              <div class="avatar">
+               
+               {% if user.photo %}
+               <img src="{{user.photo.url}}" width="48" alt="">
+               {% else%}
+               <img src="/static/assets/img/avatar-1.jpg" width="48" alt="">
+               {% endif%}
+              </div>
+              <div class="person-list-body">
+                <div>
+                  <h5>{{user.first_name}} {{user.last_name}}</h5>
+                  <p class="no-read">
+                    {{user.bio}}
+                  </p>
+                </div>
+              </div>
+            </a>
+          </li>
+    {% endfor%}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content%}
